@@ -996,6 +996,8 @@ class ApplicationRequest extends DataObject implements PermissionProvider
             'AssignedTo' => 'Obrađuje',
             'IntakeBy' => 'Zaprimio na šalteru',
             'InternalNote' => 'Interna bilješka (vidljiva samo službi)',
+            'AssessedFees' => 'Utvrđeni iznos takse',
+            'Payments' => 'Takse za uplatu',
             'AiOverallLight' => 'AI semafor',
         ]);
     }
