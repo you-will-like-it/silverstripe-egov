@@ -722,7 +722,7 @@ class ApplicationRequest extends DataObject implements PermissionProvider
      */
     public function expectedRangeFor(FeeItem $fee): array
     {
-        $assessed = $this->getAssessedFees()[(int) $fee->ID] ?? null;
+        $assessed = $this->getAssessedFeeAmounts()[(int) $fee->ID] ?? null;
         if ($assessed !== null) {
             return [$assessed, $assessed];
         }
@@ -749,10 +749,10 @@ class ApplicationRequest extends DataObject implements PermissionProvider
     /**
      * @return array<int, float> FeeItemID => amount
      */
-    public function getAssessedFees(): array
+    public function getAssessedFeeAmounts(): array
     {
         try {
-            $data = json_decode((string) $this->AssessedFees, true, 4, JSON_THROW_ON_ERROR);
+            $data = json_decode((string) $this->getField('AssessedFees'), true, 4, JSON_THROW_ON_ERROR);
         } catch (JsonException) {
             return [];
         }
@@ -768,13 +768,14 @@ class ApplicationRequest extends DataObject implements PermissionProvider
     /**
      * @param array<int, float> $amounts FeeItemID => amount (merged into existing values)
      */
-    public function setAssessedFees(array $amounts): static
+    public function setAssessedFeeAmounts(array $amounts): static
     {
-        $merged = $this->getAssessedFees();
+        $merged = $this->getAssessedFeeAmounts();
         foreach ($amounts as $feeId => $amount) {
             $merged[(int) $feeId] = round((float) $amount, 2);
         }
-        $this->AssessedFees = $merged === [] ? null : json_encode($merged, JSON_FORCE_OBJECT);
+        // setField(): a magic property write would route to a set<Field>() method of the same name
+        $this->setField('AssessedFees', $merged === [] ? null : json_encode($merged, JSON_FORCE_OBJECT));
         return $this;
     }
 
