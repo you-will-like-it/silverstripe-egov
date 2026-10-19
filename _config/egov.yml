@@ -1,0 +1,95 @@
+---
+Name: youwilllikeit-egov
+After:
+  - '#coreconfig'
+  - '#siteconfig'
+  - '#aigateway'
+  - '#cmsdefaultadmin'
+---
+
+# -----------------------------------------------------------------------------
+# Tenant (SiteConfig → e-Uprava). YAML values are fallbacks only.
+# -----------------------------------------------------------------------------
+SilverStripe\SiteConfig\SiteConfig:
+  extensions:
+    - YouWillLikeIT\EGov\Tenant\TenantSiteConfigExtension
+
+YouWillLikeIT\EGov\Tenant\TenantConfig:
+  defaults:
+    canton: 'Tuzlanski kanton'
+    entity: 'Federacija Bosne i Hercegovine'
+    country: 'Bosna i Hercegovina'
+
+# Referents have no access to the default panel (Security), so /admin must land on the inbox.
+SilverStripe\Admin\AdminRootController:
+  default_panel: YouWillLikeIT\EGov\Admin\ApplicationRequestAdmin
+
+# -----------------------------------------------------------------------------
+# Dependency wiring (all services are replaceable via Injector)
+# -----------------------------------------------------------------------------
+SilverStripe\Core\Injector\Injector:
+  YouWillLikeIT\EGov\Pdf\PdfRendererInterface:
+    class: YouWillLikeIT\EGov\Pdf\MpdfRenderer
+
+  YouWillLikeIT\EGov\Verification\TextExtraction\ChainTextExtractor:
+    constructor:
+      extractors:
+        - '%$YouWillLikeIT\EGov\Verification\TextExtraction\PdfTextExtractor'
+        - '%$YouWillLikeIT\EGov\Verification\TextExtraction\TesseractOcrExtractor'
+
+  YouWillLikeIT\EGov\Verification\AiDocumentVerificationService:
+    constructor:
+      gateway: '%$AIGateway'
+      extractor: '%$YouWillLikeIT\EGov\Verification\TextExtraction\ChainTextExtractor'
+      slipParser: '%$YouWillLikeIT\EGov\Verification\PaymentSlipParser'
+      noticeBuilder: '%$YouWillLikeIT\EGov\Verification\SupplementNoticeBuilder'
+
+# -----------------------------------------------------------------------------
+# Uploads (citizen attachments – protected assets)
+# -----------------------------------------------------------------------------
+YouWillLikeIT\EGov\Service\AttachmentUploadService:
+  allowed_extensions: [pdf, jpg, jpeg, png]
+  max_file_size_mb: 10
+  max_files_per_request: 30
+  root_folder: 'egov-prilozi'
+
+# -----------------------------------------------------------------------------
+# AI verification (AIGateway, category "text")
+# -----------------------------------------------------------------------------
+YouWillLikeIT\EGov\Verification\AiDocumentVerificationService:
+  ai_enabled: true
+  redact_personal_ids: true
+  max_prompt_chars: 12000
+  type_match_min_confidence: 0.8
+  type_mismatch_min_confidence: 0.7
+
+YouWillLikeIT\EGov\Verification\TextExtraction\TesseractOcrExtractor:
+  binary: 'tesseract'
+  languages: 'bos+hrv+srp_latn'
+
+# -----------------------------------------------------------------------------
+# Workflow & notifications
+# -----------------------------------------------------------------------------
+YouWillLikeIT\EGov\Workflow\ApplicationWorkflow:
+  confirmation_ttl_hours: 48
+  require_protocol_for: [Incomplete, AwaitingPayment, ReadyForPickup, Completed, Rejected, Dismissed]
+  # "Spreman za preuzimanje" samo uz priložen primjerak izdatog akta – odlučiti sa referentima
+  require_result_document_for_pickup: false
+
+YouWillLikeIT\EGov\Service\NotificationService:
+  notify_citizen_on: [Incomplete, AwaitingPayment, InProcess, ReadyForPickup, Completed, Rejected, Dismissed]
+
+YouWillLikeIT\EGov\Model\ApplicationRequest:
+  # Optional regex for manually entered protocol numbers (empty = uniqueness check only)
+  protocol_number_pattern: ''
+
+YouWillLikeIT\EGov\Task\DeadlineMonitorTask:
+  purge_unconfirmed_after_days: 14      # samo portal-nacrti bez protokola
+  auto_dismiss_expired_supplements: false
+  auto_dismiss_grace_days: 3
+
+YouWillLikeIT\EGov\Service\AuditLogger:
+  view_dedupe_seconds: 600
+
+YouWillLikeIT\EGov\Task\VerifyAttachmentsTask:
+  verify_drafts: false

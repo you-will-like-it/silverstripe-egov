@@ -1,0 +1,178 @@
+---
+Name: egov-preset-srebrenik
+After:
+  - '#youwilllikeit-egov'
+  - '#youwilllikeit-egov-procedures'
+  - '#youwilllikeit-egov-deadlines'
+---
+# =============================================================================
+# Preset: Grad Srebrenik (Tuzlanski kanton)
+# Kopirati u app/_config/egov-preset.yml i pokrenuti:
+#   vendor/bin/sake db:build --flush
+#   vendor/bin/sake tasks:egov-seed
+#
+# Izvor: Elektronski registar administrativnih procedura Grada Srebrenik
+# (formulari 08-1, 03-38) i obrasci zahtjeva službi. Registar je iz 2012. –
+# pravne osnove, tarifne brojeve i iznose PRIJE PRODUKCIJE uskladiti sa
+# važećom Odlukom o administrativnim taksama i Tarifom gradskih taksi.
+# Stavke označene "PROVJERITI" nisu direktno potvrđene u registru.
+# =============================================================================
+
+YouWillLikeIT\EGov\Tenant\TenantConfig:
+  defaults:
+    municipality_type: 'City'
+    municipality_name: 'Srebrenik'
+    municipality_code: '084'
+    tracking_prefix: 'SRB'
+    place_locative: 'Srebreniku'
+
+YouWillLikeIT\EGov\Procedure\ProcedureRegistry:
+  procedures:
+    '05-16':
+      payload_fields:
+        RequestedDocument:
+          type: textarea
+          label: 'Naziv dokumenta i kratak opis traženih podataka'
+          description: 'Navedite i eventualni raniji broj predmeta ili godinu na koju se dokument odnosi.'
+          required: true
+          max_length: 3000
+        Purpose:
+          type: text
+          label: 'Svrha'
+          max_length: 255
+
+YouWillLikeIT\EGov\Service\DeadlineCalculator:
+  procedure_overrides:
+    '05-16':
+      decision_days: 10   # obrazac zahtjeva: "Rok za rješavanje: 10 dana"
+
+YouWillLikeIT\EGov\Task\SeedCatalogueTask:
+  preset:
+    tenant:
+      type: 'City'
+      name: 'Srebrenik'
+      code: '084'
+      tracking_prefix: 'SRB'
+      canton: 'Tuzlanski kanton'
+      entity: 'Federacija Bosne i Hercegovine'
+
+    services:
+      - { code: '03', title: 'Služba za geodetske i imovinsko-pravne poslove' }
+      - { code: '05', title: 'Služba za opću upravu i zajedničke poslove' }
+      - { code: '06', title: 'Služba za poduzetništvo, lokalni razvoj i investicije' }
+      - { code: '08', title: 'Služba za prostorno uređenje i zaštitu okolice', department: 'Odsjek za urbanizam i prostorno uređenje' }
+
+    accounts:
+      - account: '1321500299280097'
+        title: 'Gradske administrativne takse'
+        recipient: 'Budžet Grada Srebrenik'
+      - account: '1321000256000080'
+        title: 'Naknada za korištenje podataka premjera i katastra'
+        recipient: 'Budžet Grada Srebrenik'
+
+    # Katastarske općine unijeti u Settings → e-Uprava ili ovdje:
+    # - { title: 'Srebrenik', survey: 'New' }
+    cadastral_municipalities: []
+
+    procedures:
+      '08-01':
+        title: 'Urbanistička saglasnost'
+        service: '08'
+        class: 'YouWillLikeIT\EGov\Model\UrbanConsentRequest'
+        deadline_category: 'Examination'          # registar D11.1: 60 dana, čl. 216. ZUP
+        requires_location: true
+        service_class: 'UP-I'
+        result_document: 'Rješenje o urbanističkoj saglasnosti'
+        validity: '1 godina'
+        summary: 'Utvrđivanje uslova izgradnje planirane građevine u odnosu na lokaciju i važeću plansku dokumentaciju.'
+        legal_basis: >-
+          Zakon o prostornom uređenju i građenju ("Sl. novine TK", br. 6/11), čl. 68. st. 1.;
+          Zakon o upravnom postupku ("Sl. novine FBiH", br. 2/98 i 48/99), čl. 200.;
+          Zakon o promjeni namjene poljoprivrednog zemljišta ("Sl. novine TK", br. 10/10), čl. 8.
+        fees:
+          - title: 'Gradska administrativna taksa – stambeni objekat'
+            tariff: '11'
+            variant: 'Residential'
+            amount: 70
+            amount_max: 200
+            amount_note: '70 – 200 KM (zavisno od površine objekta)'
+            account: '1321500299280097'
+            revenue_type: '722131'
+            legal_basis: 'Odluka o administrativnim taksama i Tarifa gradskih administrativnih taksi, čl. 2. i 3.'
+          - title: 'Gradska administrativna taksa – stambeno-poslovni objekat'
+            tariff: '11'
+            variant: 'ResidentialCommercial'
+            amount: 100
+            amount_max: 300
+            amount_note: '100 – 300 KM (zavisno od površine objekta)'
+            account: '1321500299280097'
+            revenue_type: '722131'
+          - title: 'Gradska administrativna taksa – poslovni objekat'
+            tariff: '11'
+            variant: 'Commercial'
+            amount: 0                              # PROVJERITI: iznos u registru nije čitljiv
+            amount_note: 'Prema tarifnom broju 11 (zavisno od vrste i površine)'
+            account: '1321500299280097'
+            revenue_type: '722131'
+        documents:
+          - key: 'kopija-katastarskog-plana'
+            title: 'Kopija katastarskog plana parcele'
+            issuer: 'Služba za geodetske i imovinsko-pravne poslove'
+            form: 'Copy'
+            ai_hint: 'Kopija katastarskog plana: grafički prikaz parcela, broj k.č., naziv k.o., razmjer, pečat službe za geodetske poslove.'
+          - key: 'dokaz-o-uplati'
+            title: 'Dokaz o uplati administrativne takse'
+            issuer: 'Banka / pošta'
+            form: 'Copy'
+            payment_proof: true
+            ai_hint: 'Uplatnica za javne prihode (nalog za uplatu) sa računom primaoca, vrstom prihoda, šifrom općine i iznosom; pečat banke ili potvrda e-bankarstva.'
+          - key: 'obrazlozenje-idejni-projekat'
+            title: 'Obrazloženje zahtjeva (idejni projekat i dr.)'
+            issuer: 'Podnosilac zahtjeva'
+            form: 'Copy'
+            ai_hint: 'Idejni projekat, tehnički opis ili skica planiranog objekta.'
+
+      '03-38':
+        title: 'Kopija katastarskog plana'
+        service: '03'
+        class: 'YouWillLikeIT\EGov\Model\CadastralPlanCopyRequest'
+        deadline_category: 'Simple'
+        requires_location: true
+        result_document: 'Kopija katastarskog plana'
+        summary: 'Izdavanje kopije katastarskog plana za jednu ili više parcela.'
+        fees:
+          - title: 'Naknada za korištenje podataka premjera i katastra'
+            kind: 'Compensation'
+            tariff: '11'
+            amount: 11
+            additional_unit_amount: 4
+            amount_note: '11 KM + 4 KM za svaku narednu parcelu'
+            account: '1321000256000080'
+            revenue_type: '722515'
+        documents:
+          - key: 'dokaz-o-uplati'
+            title: 'Dokaz o uplati naknade'
+            issuer: 'Banka / pošta'
+            form: 'Copy'
+            payment_proof: true
+            ai_hint: 'Uplatnica za javne prihode sa računom primaoca, vrstom prihoda, šifrom općine i iznosom.'
+
+      '05-16':
+        title: 'Izdavanje predmeta / dokumenata iz arhive'
+        service: '05'
+        class: 'YouWillLikeIT\EGov\Model\ApplicationRequest'
+        deadline_category: 'Simple'
+        requires_location: false
+        result_document: 'Prepis / kopija dokumenta iz arhive'
+        fees:
+          - title: 'Gradska administrativna taksa'
+            amount: 10
+            account: '1321500299280097'          # PROVJERITI račun i vrstu prihoda za ovu taksu
+            revenue_type: '722131'
+        documents:
+          - key: 'dokaz-o-uplati'
+            title: 'Dokaz o uplati gradske administrativne takse'
+            issuer: 'Banka / pošta'
+            form: 'Copy'
+            payment_proof: true
+            ai_hint: 'Uplatnica za javne prihode sa računom primaoca, vrstom prihoda, šifrom općine i iznosom.'

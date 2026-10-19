@@ -1,0 +1,30 @@
+---
+Name: youwilllikeit-egov-routes
+After:
+  - '#rootroutes'
+  - '#coreroutes'
+---
+# Status lookup is rate limited (JMBG + kod predmeta); the rest of the portal is not,
+# because the multi-step form issues several requests per minute.
+SilverStripe\Core\Injector\Injector:
+  EGovStatusRateLimitMiddleware:
+    class: SilverStripe\Control\Middleware\RateLimitMiddleware
+    properties:
+      ExtraKey: 'EGovStatus'
+      MaxAttempts: 10
+      Decay: 1
+  EGovRateLimitedStatusController:
+    class: SilverStripe\Control\Middleware\RequestHandlerMiddlewareAdapter
+    properties:
+      RequestHandler: '%$YouWillLikeIT\EGov\Controller\StatusController'
+      Middlewares:
+        - '%$EGovStatusRateLimitMiddleware'
+
+# Order matters: the more specific rule must come first.
+SilverStripe\Control\Director:
+  rules:
+    'e-uprava/status': '%$EGovRateLimitedStatusController'
+    'e-uprava': 'YouWillLikeIT\EGov\Controller\PortalController'
+    'egov-datoteke': 'YouWillLikeIT\EGov\Controller\SecureFileController'
+    'egov-izvjestaji': 'YouWillLikeIT\EGov\Report\ReportController'
+    'egov-prijava': 'YouWillLikeIT\EGov\Security\EmailOtpController'

@@ -1,0 +1,51 @@
+{
+    "name": "youwilllikeit/silverstripe-egov",
+    "description": "Modular e-Government platform for municipalities in Bosnia and Herzegovina (FBiH/TK) – one installation per municipality. Silverstripe CMS 6.",
+    "type": "silverstripe-vendormodule",
+    "license": "proprietary",
+    "keywords": ["silverstripe", "egov", "e-uprava", "bih", "fbih", "municipality"],
+    "authors": [
+        { "name": "Đorđe", "homepage": "https://github.com/kalakotra" }
+    ],
+    "require": {
+        "php": "^8.3",
+        "silverstripe/framework": "^6.2",
+        "silverstripe/admin": "^3.2",
+        "silverstripe/asset-admin": "^3.2",
+        "silverstripe/assets": "^3.2",
+        "silverstripe/siteconfig": "^6.1",
+        "silverstripe/mimevalidator": "^4.0",
+        "silverstripe/multiform": "^4.0 || 4.x-dev",
+        "kalakotra/silverstripe-aigateway": "*",
+        "mpdf/mpdf": "^8.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    },
+    "suggest": {
+        "smalot/pdfparser": "Pure-PHP PDF text extraction (otherwise the pdftotext binary is used)"
+    },
+    "autoload": {
+        "psr-4": {
+            "YouWillLikeIT\\EGov\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "YouWillLikeIT\\EGov\\Tests\\": "tests/php/"
+        }
+    },
+    "extra": {
+        "expose": [
+            "client/dist"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "silverstripe/vendor-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

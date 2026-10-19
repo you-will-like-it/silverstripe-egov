@@ -1,0 +1,151 @@
+@import "tailwindcss";
+@source "../../templates";
+@source "../../src";
+
+/*
+ * Citizen portal. Design tokens are CSS variables so a municipality theme can
+ * re-brand without rebuilding (override in the theme stylesheet).
+ */
+@theme {
+  --color-egov-primary: #0b3d6e;
+  --color-egov-primary-600: #0f4f8c;
+  --color-egov-accent: #c8102e;
+  --color-egov-ink: #1f2937;
+  --color-egov-muted: #5b6472;
+  --color-egov-line: #dfe3e8;
+  --color-egov-bg: #f5f6f8;
+  --font-sans: "Source Sans 3", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+}
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body.egov { @apply bg-egov-bg text-egov-ink antialiased; font-family: var(--font-sans); line-height: 1.55; }
+  .egov h1 { @apply text-2xl md:text-3xl font-bold text-egov-primary mt-2 mb-3; }
+  .egov h2 { @apply text-xl font-semibold mt-6 mb-2; }
+  .egov h3 { @apply text-base font-semibold mt-4 mb-2; }
+  .egov a { @apply text-egov-primary-600 underline underline-offset-2; }
+  .egov :focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+  [hidden] { display: none !important; }
+}
+
+@layer components {
+  .egov-skip { @apply sr-only; }
+  .egov-skip:focus { @apply not-sr-only fixed left-3 top-3 z-50 rounded bg-white px-3 py-2 shadow; }
+  .egov-visually-hidden { @apply sr-only; }
+
+  .egov-container { @apply mx-auto w-full max-w-5xl px-4; }
+  .egov-header { @apply border-b-4 border-egov-accent bg-egov-primary text-white; }
+  .egov-header__inner { @apply flex flex-wrap items-center justify-between gap-3 py-3; }
+  .egov-brand { @apply flex items-center gap-3 text-white no-underline; }
+  .egov-brand__logo { @apply h-12 w-auto; }
+  .egov-brand__name { @apply block text-lg font-bold leading-tight; }
+  .egov-brand__sub { @apply block text-sm opacity-85; }
+  .egov-nav { @apply flex gap-4 text-sm; }
+  .egov-nav a { @apply text-white no-underline hover:underline; }
+  .egov-main { @apply py-6 md:py-8; }
+  .egov-footer { @apply mt-10 border-t border-egov-line bg-white py-5 text-sm text-egov-muted; }
+
+  .egov-hero { @apply mb-6 rounded-lg bg-white p-5 shadow-sm md:p-7; }
+  .egov-breadcrumbs { @apply mb-2 text-sm text-egov-muted; }
+  .egov-muted { @apply text-sm text-egov-muted; }
+  .egov-hint { @apply rounded bg-sky-50 p-3 text-sm text-sky-900; }
+  .egov-notice { @apply my-4 rounded border border-egov-line bg-white p-4 text-sm; }
+  .egov-code { @apply font-mono tracking-wide; }
+  .egov-pre { @apply mt-2 whitespace-pre-line; }
+  .egov-row { @apply mt-4 flex flex-wrap items-center gap-3; }
+
+  .egov-layout { @apply grid gap-6 md:grid-cols-[minmax(0,1fr)_18rem]; }
+  .egov-card { @apply mb-5 rounded-lg border border-egov-line bg-white p-5 shadow-sm; }
+  .egov-card__title { @apply mt-0 mb-3 text-lg font-semibold text-egov-primary; }
+  .egov-list { @apply list-disc space-y-1 pl-5; }
+  .egov-dl { @apply grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-[12rem_1fr]; }
+  .egov-dl dt { @apply text-sm text-egov-muted; }
+  .egov-dl dd { @apply mb-2 font-medium sm:mb-0; }
+  .egov-table { @apply w-full border-collapse text-sm; }
+  .egov-table th { @apply border-b border-egov-line py-2 pr-3 text-left font-semibold; }
+  .egov-table td { @apply border-b border-egov-line py-2 pr-3 align-top; }
+
+  .egov-service { @apply mb-6; }
+  .egov-procedures { @apply grid gap-3 sm:grid-cols-2; }
+  .egov-procedure { @apply rounded-lg border border-egov-line bg-white p-4 transition hover:border-egov-primary-600 hover:shadow; }
+  .egov-procedure__link { @apply flex gap-3 no-underline; }
+  .egov-procedure__code { @apply shrink-0 rounded bg-egov-primary/10 px-2 py-0.5 font-mono text-xs text-egov-primary; }
+  .egov-procedure__title { @apply font-semibold text-egov-ink; }
+  .egov-procedure__summary { @apply mt-2 text-sm text-egov-muted; }
+
+  .egov-badge { @apply inline-flex items-center rounded-full px-3 py-0.5 text-sm font-semibold; }
+  .egov-badge--muted { @apply bg-gray-200 text-gray-800; }
+  .egov-badge--info { @apply bg-sky-100 text-sky-900; }
+  .egov-badge--primary { @apply bg-indigo-100 text-indigo-900; }
+  .egov-badge--warning { @apply bg-amber-100 text-amber-900; }
+  .egov-badge--success { @apply bg-emerald-100 text-emerald-900; }
+  .egov-badge--danger { @apply bg-red-100 text-red-900; }
+  .egov-tag { @apply ml-2 rounded bg-egov-primary/10 px-1.5 text-xs text-egov-primary; }
+  .egov-tag--muted { @apply bg-gray-100 text-gray-600; }
+
+  .egov-alert { @apply my-4 rounded-md border-l-4 p-4; }
+  .egov-alert--info { @apply border-sky-600 bg-sky-50; }
+  .egov-alert--warning { @apply border-amber-500 bg-amber-50; }
+  .egov-alert--success { @apply border-emerald-600 bg-emerald-50; }
+  .egov-alert--danger { @apply border-red-600 bg-red-50; }
+
+  .egov-case-head { @apply mb-4 flex flex-wrap items-center gap-x-5 gap-y-2; }
+  .egov-docs { @apply divide-y divide-egov-line; }
+  .egov-docs__item { @apply py-3; }
+  .egov-docs__title { @apply font-medium; }
+  .egov-files { @apply mt-2 space-y-1 pl-4 text-sm; }
+  .egov-files li { @apply flex items-center justify-between gap-3; }
+  .egov-upload { @apply mt-4 rounded-md bg-egov-bg p-4; }
+  .egov-actions { @apply my-6; }
+  .egov-timeline { @apply list-decimal space-y-1 pl-5 text-sm; }
+
+  .egov-steps { @apply mb-5 flex flex-wrap gap-2 text-sm; }
+  .egov-steps__item { @apply flex items-center gap-2 rounded-full border border-egov-line bg-white px-3 py-1 text-egov-muted; }
+  .egov-steps__item--current { @apply border-egov-primary bg-egov-primary text-white; }
+  .egov-steps__item.completed { @apply border-emerald-600 text-emerald-800; }
+  .egov-steps__num { @apply inline-flex h-5 w-5 items-center justify-center rounded-full bg-black/10 text-xs font-bold; }
+
+  .egov-btn { @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold no-underline transition disabled:cursor-wait disabled:opacity-60; }
+  .egov-btn--primary { @apply bg-egov-primary text-white hover:bg-egov-primary-600; }
+  .egov-btn--ghost { @apply border border-egov-primary bg-white text-egov-primary hover:bg-egov-primary/5; }
+  .egov-btn--link { @apply bg-transparent px-1 py-0 text-red-700 underline; }
+
+  .egov-live-hint { @apply mt-1 min-h-5 text-sm text-amber-800; }
+  .egov-review section { @apply mb-4; }
+
+  /* --- Silverstripe form markup ------------------------------------------ */
+  .egov-form .field { @apply mb-4; }
+  .egov-form .field > label.left,
+  .egov-form legend { @apply mb-1 block font-semibold; }
+  .egov-form .field.requiredField > label.left::after { content: " *"; @apply text-egov-accent; }
+  .egov-form input[type="text"],
+  .egov-form input[type="email"],
+  .egov-form input[type="tel"],
+  .egov-form input[type="number"],
+  .egov-form input[type="date"],
+  .egov-form select,
+  .egov-form textarea {
+    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base shadow-sm focus:border-egov-primary-600 focus:ring-2 focus:ring-egov-primary-600/30;
+  }
+  .egov-form input[type="file"] { @apply block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-egov-primary file:px-3 file:py-2 file:text-white; }
+  .egov-form .optionset ul,
+  .egov-form ul.optionset { @apply m-0 flex list-none flex-wrap gap-4 p-0; }
+  .egov-form .optionset li { @apply flex items-center gap-2; }
+  .egov-form .checkbox { @apply flex items-start gap-2; }
+  .egov-form .checkbox input { @apply mt-1 h-4 w-4; }
+  .egov-form .description { @apply mt-1 block text-sm text-egov-muted; }
+  .egov-form .message,
+  .egov-case-actions .message,
+  form p.message { @apply my-3 block rounded-md p-3 text-sm; }
+  .egov-form .message.required,
+  .egov-form .message.validation,
+  .egov-form .message.error,
+  form p.message.bad,
+  form p.message.error { @apply bg-red-50 text-red-900; }
+  form p.message.good { @apply bg-emerald-50 text-emerald-900; }
+  .egov-form .btn-toolbar,
+  .egov-case-actions .btn-toolbar { @apply mt-6 flex flex-wrap gap-3; }
+  .egov-form .btn-toolbar button,
+  .egov-form .btn-toolbar input[type="submit"] { @apply inline-flex items-center rounded-md bg-egov-primary px-5 py-2.5 font-semibold text-white hover:bg-egov-primary-600; }
+  .egov-form .btn-toolbar button[name="action_prev"] { @apply border border-egov-primary bg-white text-egov-primary; }
+}

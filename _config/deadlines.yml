@@ -1,0 +1,22 @@
+---
+Name: youwilllikeit-egov-deadlines
+---
+# Rokovi po Zakonu o upravnom postupku FBiH (default). Pojedinačne procedure
+# se mijenjaju kroz procedure_overrides (ključ = šifra procedure).
+YouWillLikeIT\EGov\Service\DeadlineCalculator:
+  decision_days:
+    Simple: 30        # bez posebnog ispitnog postupka (čl. 216.)
+    Examination: 60   # sa posebnim ispitnim postupkom (čl. 216.)
+    Certificate: 5    # uvjerenja/potvrde iz službene evidencije
+  supplement_days: 8
+  warning_days: 5
+  timezone: 'Europe/Sarajevo'
+  non_working_weekdays: [6, 7]
+  # Nova godina, Dan nezavisnosti, Praznik rada, Dan državnosti
+  holidays_fixed: ['01-01', '01-02', '03-01', '05-01', '05-02', '11-25']
+  # Pomični / lokalni neradni dani (YYYY-MM-DD) – odluka općine po godini
+  holidays_dates: []
+  procedure_overrides: {}
+  #   '05-16':
+  #     decision_days: 10
+  #     supplement_days: 5

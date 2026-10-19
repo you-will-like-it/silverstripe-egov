@@ -1,0 +1,98 @@
+---
+Name: youwilllikeit-egov-notifications
+---
+# Default texts – copied into the DB by `sake tasks:egov-seed` and then edited in
+# CMS (e-Uprava: postavke → Tekstovi obavještenja). Placeholders: see NotificationTemplate::PLACEHOLDERS.
+# LegalNotice ("legal") is the municipality's own legal wording – review with the legal service.
+YouWillLikeIT\EGov\Model\NotificationTemplate:
+  defaults_by_key:
+    confirm_submission:
+      title: 'Portal: potvrda podnošenja (double-opt-in)'
+      subject: 'Potvrdite podnošenje zahtjeva – {Procedura}'
+      intro: "Poštovani/a {Ime},\n\nprimili smo Vaš elektronski zahtjev „{Procedura}“. Zahtjev je formalno podnesen tek kada potvrdite svoju email adresu klikom na dugme ispod."
+      legal: ''
+      outro: "Ako niste Vi podnijeli ovaj zahtjev, zanemarite ovu poruku – nepotvrđeni zahtjevi se automatski brišu.\n\n{Opcina}"
+    submission_receipt:
+      title: 'Portal: zahtjev zaprimljen'
+      subject: 'Zahtjev zaprimljen – kod predmeta {KodPredmeta}'
+      intro: "Poštovani/a {Ime},\n\nVaš zahtjev „{Procedura}“ zaprimljen je dana {DatumPodnosenja} i proslijeđen službi: {Sluzba}.\nSačuvajte kod predmeta {KodPredmeta} – uz JMBG/ID broj služi za provjeru statusa na {LinkStatusa}."
+      legal: ''
+      outro: "Gotov akt preuzimate lično na šalteru uz važeću ličnu kartu; tom prilikom potpisujete zahtjev.\n\n{Opcina}"
+    counter_receipt:
+      title: 'Šalter: potvrda o prijemu (email)'
+      subject: 'Potvrda o prijemu zahtjeva – kod predmeta {KodPredmeta}'
+      intro: "Poštovani/a {Ime},\n\nna šalteru je zaprimljen Vaš zahtjev „{Procedura}“ (broj protokola {BrojProtokola}).\nStatus možete pratiti na {LinkStatusa} uz kod predmeta {KodPredmeta} i JMBG/ID broj."
+      legal: ''
+      outro: '{Opcina}'
+    status_InProcess:
+      title: 'Status: u obradi'
+      subject: 'Zahtjev {KodPredmeta} je u obradi'
+      intro: "Poštovani/a {Ime},\n\nVaš zahtjev „{Procedura}“ (broj protokola {BrojProtokola}) je u obradi. Zakonski rok za rješavanje je {RokRjesavanja}."
+      legal: ''
+      outro: '{Opcina}'
+    status_Incomplete:
+      title: 'Status: potrebna dopuna'
+      subject: 'Potrebna dopuna zahtjeva {KodPredmeta}'
+      intro: "Poštovani/a {Ime},\n\nuvidom u Vaš zahtjev „{Procedura}“ (broj protokola {BrojProtokola}) utvrđeno je da zahtjev nije potpun."
+      legal: ''
+      outro: '{Opcina}'
+    status_AwaitingPayment:
+      title: 'Status: čeka uplatu'
+      subject: 'Zahtjev {KodPredmeta} čeka uplatu takse'
+      intro: "Poštovani/a {Ime},\n\nza nastavak postupka po zahtjevu „{Procedura}“ (broj protokola {BrojProtokola}) potrebno je izvršiti uplatu i dostaviti ispravan dokaz o uplati."
+      legal: ''
+      outro: '{Opcina}'
+    status_ReadyForPickup:
+      title: 'Status: spreman za preuzimanje'
+      subject: 'Akt po zahtjevu {KodPredmeta} je spreman'
+      intro: "Poštovani/a {Ime},\n\nakt po Vašem zahtjevu „{Procedura}“ (broj protokola {BrojProtokola}) je spreman za preuzimanje. Preuzimate ga lično ili putem punomoćnika na šalteru uz važeću ličnu kartu; tom prilikom potpisujete zahtjev."
+      legal: ''
+      outro: '{Opcina}'
+    status_Completed:
+      title: 'Status: završen'
+      subject: 'Zahtjev {KodPredmeta} je završen'
+      intro: "Poštovani/a {Ime},\n\npostupak po Vašem zahtjevu „{Procedura}“ (broj protokola {BrojProtokola}) je završen."
+      legal: ''
+      outro: '{Opcina}'
+    status_Rejected:
+      title: 'Status: odbijen'
+      subject: 'Odluka po zahtjevu {KodPredmeta}'
+      intro: "Poštovani/a {Ime},\n\npo Vašem zahtjevu „{Procedura}“ (broj protokola {BrojProtokola}) donesena je odluka. Rješenje sa obrazloženjem preuzimate lično na šalteru."
+      legal: 'Rješenje sadrži pouku o pravnom lijeku. Rok za izjavljivanje pravnog lijeka teče od dana dostavljanja rješenja.'
+      outro: '{Opcina}'
+    status_Dismissed:
+      title: 'Status: odbačen'
+      subject: 'Zahtjev {KodPredmeta} je odbačen'
+      intro: "Poštovani/a {Ime},\n\nVaš zahtjev „{Procedura}“ (broj protokola {BrojProtokola}) je odbačen. Razlog: {RazlogOdbacivanja}."
+      legal: 'Akt o odbacivanju sa poukom o pravnom lijeku preuzimate na šalteru ili Vam se dostavlja u skladu sa propisima o upravnom postupku.'
+      outro: '{Opcina}'
+    supplement_notice:
+      title: 'Poziv za dopunu (tekst u predmetu, emailu i na portalu)'
+      subject: ''
+      intro: 'Pozivamo Vas da u roku od {BrojDanaDopuna} dana, najkasnije do {RokZaDopunu}, dostavite:'
+      legal: 'Ukoliko u ostavljenom roku ne otklonite navedene nedostatke, smatrat će se da zahtjev nije podnesen.'
+      outro: 'Dopunu možete dostaviti putem linka iz ovog obavještenja ili lično na šalteru.'
+    service_new_request:
+      title: 'Služba: novi zahtjev'
+      subject: 'Novi zahtjev: {Procedura} – {KodPredmeta}'
+      intro: 'Zaprimljen je novi zahtjev „{Procedura}“ (podnosilac: {Ime}).'
+      legal: ''
+      outro: ''
+    service_supplement:
+      title: 'Služba: dostavljena dopuna'
+      subject: 'Dopuna zahtjeva: {Procedura} – {KodPredmeta}'
+      intro: 'Podnosilac {Ime} je dostavio dopunu zahtjeva „{Procedura}“ (broj protokola {BrojProtokola}). Predmet čeka ponovnu obradu.'
+      legal: ''
+      outro: ''
+    deadline_digest:
+      title: 'Služba: pregled rokova'
+      subject: 'Rokovi predmeta – {Sluzba}'
+      intro: 'Pregled predmeta sa rokovima koji ističu ili su istekli.'
+      legal: ''
+      outro: ''
+    login_code:
+      title: 'Prijava u CMS: jednokratni kod'
+      subject: 'Kod za prijavu u e-Upravu: {Kod}'
+      intro: 'Vaš jednokratni kod za prijavu je: {Kod}. Kod važi {Minuta} minuta.'
+      legal: ''
+      outro: 'Ako se niste Vi prijavljivali, odmah obavijestite administratora.'

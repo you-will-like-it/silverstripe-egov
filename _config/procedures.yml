@@ -1,0 +1,9 @@
+---
+Name: youwilllikeit-egov-procedures
+---
+# FormPayload schemas for procedures WITHOUT a dedicated request subclass.
+# Keys = procedure codes (ProcedureDefinition.Code). Supported types:
+# text, textarea, number, date, email, dropdown (options), checkbox.
+YouWillLikeIT\EGov\Procedure\ProcedureRegistry:
+  portal_url_segment: 'e-uprava'
+  procedures: {}

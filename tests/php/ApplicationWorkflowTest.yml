@@ -1,0 +1,71 @@
+SilverStripe\Security\Group:
+  urbanismReferents:
+    Title: 'Referenti urbanizma'
+    Code: 'egov-urbanizam'
+  supervisors:
+    Title: 'Nadzor'
+    Code: 'egov-nadzor'
+
+SilverStripe\Security\Permission:
+  referentPerm:
+    Code: 'EGOV_REFERENT'
+    Group: =>SilverStripe\Security\Group.urbanismReferents
+  supervisorPerm:
+    Code: 'EGOV_SUPERVISOR'
+    Group: =>SilverStripe\Security\Group.supervisors
+
+SilverStripe\Security\Member:
+  mujo:
+    FirstName: 'Mujo'
+    Surname: 'Mujić'
+    Email: 'mujo@example.ba'
+    Groups: =>SilverStripe\Security\Group.urbanismReferents
+  haso:
+    FirstName: 'Haso'
+    Surname: 'Hasić'
+    Email: 'haso@example.ba'
+    Groups: =>SilverStripe\Security\Group.urbanismReferents
+  boss:
+    FirstName: 'Nadzor'
+    Surname: 'Službe'
+    Email: 'nadzor@example.ba'
+    Groups: =>SilverStripe\Security\Group.supervisors
+
+YouWillLikeIT\EGov\Model\MunicipalService:
+  urbanism:
+    Code: '08'
+    Title: 'Služba za prostorno uređenje i zaštitu okolice'
+    Email: 'urbanizam@example.ba'
+    Groups: =>SilverStripe\Security\Group.urbanismReferents
+
+YouWillLikeIT\EGov\Model\ProcedureDefinition:
+  urbanConsent:
+    Code: '08-01'
+    Title: 'Urbanistička saglasnost'
+    Service: =>YouWillLikeIT\EGov\Model\MunicipalService.urbanism
+    DeadlineCategory: 'Examination'
+    IsActive: true
+
+YouWillLikeIT\EGov\Model\RequiredDocument:
+  plan:
+    Procedure: =>YouWillLikeIT\EGov\Model\ProcedureDefinition.urbanConsent
+    DocumentKey: 'kopija-plana'
+    Title: 'Kopija katastarskog plana'
+    IsMandatory: false
+  slip:
+    Procedure: =>YouWillLikeIT\EGov\Model\ProcedureDefinition.urbanConsent
+    DocumentKey: 'dokaz-o-uplati'
+    Title: 'Dokaz o uplati'
+    IsMandatory: false
+    IsPaymentProof: true
+
+YouWillLikeIT\EGov\Model\ApplicationRequest:
+  draft:
+    Procedure: =>YouWillLikeIT\EGov\Model\ProcedureDefinition.urbanConsent
+    ApplicantType: 'Individual'
+    ApplicantFullName: 'Test Testić'
+    ApplicantParentName: 'Otac'
+    ApplicantIdentificationNumber: '0101990170003'
+    ApplicantEmail: 'gradjanin@example.ba'
+    ApplicantAddress: 'Ulica 1'
+    ApplicantCity: 'Srebrenik'

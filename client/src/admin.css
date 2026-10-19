@@ -1,0 +1,27 @@
+/* CMS styles for e-Zahtjevi (loaded only in ApplicationRequestAdmin). Uses CMS focus variables from 6.2. */
+.egov-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.egov-badge--muted { background: #e5e7eb; color: #374151; }
+.egov-badge--info { background: #e0f2fe; color: #075985; }
+.egov-badge--primary { background: #e0e7ff; color: #3730a3; }
+.egov-badge--warning { background: #fef3c7; color: #92400e; }
+.egov-badge--success { background: #d1fae5; color: #065f46; }
+.egov-badge--danger { background: #fee2e2; color: #991b1b; }
+
+.egov-deadline { font-size: 12px; white-space: nowrap; }
+.egov-deadline--ok { color: #065f46; }
+.egov-deadline--warning { color: #92400e; font-weight: 600; }
+.egov-deadline--overdue { color: #991b1b; font-weight: 700; }
+.egov-deadline--paused, .egov-deadline--done { color: #6b7280; }
+
+.egov-cms-header { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; font-size: 14px; }
+
+.egov-ai-report__overall { font-size: 16px; }
+.egov-ai-report__light { font-size: 22px; vertical-align: middle; margin-right: 6px; }
+.egov-ai-report__muted { color: #6b7280; font-size: 12px; }
+.egov-ai-report__item { border: 1px solid #e5e7eb; border-left-width: 5px; border-radius: 4px; padding: 10px 14px; margin: 12px 0; }
+.egov-ai-report__item--Green { border-left-color: #16a34a; }
+.egov-ai-report__item--Yellow, .egov-ai-report__item--Pending { border-left-color: #eab308; }
+.egov-ai-report__item--Red { border-left-color: #dc2626; }
+.egov-ai-report__item--Error { border-left-color: #6b7280; }
+.egov-ai-report__pre { white-space: pre-wrap; background: #f9fafb; border: 1px solid #e5e7eb; padding: 8px 10px; font-family: inherit; font-size: 13px; }
+.egov-ai-report a:focus-visible { outline: var(--focus-outline-width, 2px) var(--focus-outline-style, solid) var(--focus-outline-color, #0071c4); outline-offset: var(--focus-outline-offset, 2px); }
