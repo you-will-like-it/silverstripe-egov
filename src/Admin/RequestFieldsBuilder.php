@@ -111,6 +111,7 @@ class RequestFieldsBuilder
                 : 'Portal (email potvrđen ' . $r->formatDateTime((string) $r->EmailConfirmedAt) . ')'),
             ReadonlyField::create('SubmittedAtRO', $r->fieldLabel('SubmittedAt'), $r->formatDateTime((string) $r->SubmittedAt)),
             ReadonlyField::create('DueRO', $r->fieldLabel('DecisionDueDate'), $r->formatDate((string) $r->DecisionDueDate)),
+            ReadonlyField::create('PaymentsRO', $r->fieldLabel('Payments'), $this->paymentsSummary()),
             TextareaField::create('InternalNote', $r->fieldLabel('InternalNote'))->setRows(3),
         ]);
         $fields->fieldByName('Root.Main')?->setTitle('Predmet');
@@ -218,6 +219,27 @@ class RequestFieldsBuilder
         $fields[] = TextareaField::create($p . 'RejectionReason', 'Interna napomena uz odbijanje (razlozi su u rješenju)')->setRows(2);
 
         return $fields;
+    }
+
+    /**
+     * "Taksa: 276,00 KM (utvrdio referent)" / "Taksa: 12,00 – 650,00 KM (utvrđuje se u obradi)" – one line per fee.
+     */
+    private function paymentsSummary(): string
+    {
+        $r = $this->record;
+        $assessed = $r->getAssessedFees();
+        $assessable = array_map(static fn (FeeItem $f): int => (int) $f->ID, $r->getAssessableFees());
+        $lines = [];
+        foreach ($r->getExpectedPayments() as $row) {
+            $fee = $row->Fee;
+            $suffix = match (true) {
+                array_key_exists((int) $fee->ID, $assessed) => ' (utvrđeno u obradi)',
+                in_array((int) $fee->ID, $assessable, true) => ' (iznos se utvrđuje u obradi – tab „Radnje“)',
+                default => '',
+            };
+            $lines[] = sprintf('%s: %s%s', $fee->Title, $row->AmountLabel, $suffix);
+        }
+        return $lines === [] ? 'Procedura nema definisanih taksi.' : implode(" · ", $lines);
     }
 
     private function stateHint(): string
