@@ -50,6 +50,12 @@ općine/gradove (Srebrenik, Lukavac, Banovići …). **Jedna instalacija = jedna
 - Upload izdatog akta: **opcionalan** (`require_result_document_for_pickup: false`) – odlučiti s referentima.
 - Original akta se **preuzima lično**; pri preuzimanju stranka potpisuje PDF zahtjeva.
 
+**Taksa u rasponu** (npr. 08-05):
+- dokaz o uplati se postavlja kao neobavezan;
+- referent utvrđuje tačan iznos (broj unutar raspona iz kataloga, `AssessedFees` JSON na predmetu) i šalje predmet u „Čeka uplatu“;
+- iznos se automatski koristi u pozivu za uplatu, emailu, PDF-u i provjeri uplatnice;
+- vidi README §2.1a.
+
 **Rokovi** – default po ZUP FBiH, mijenjaju se po proceduri u YAML-u: Simple 30, Examination 60, Certificate 5, dopuna 8 dana; neradni dan → sljedeći radni dan; praznici FBiH u configu.
 
 **Tekstovi** – svi emailovi uredivi u CMS-u (Uvod / Pravna napomena / Završetak). Pravna napomena je

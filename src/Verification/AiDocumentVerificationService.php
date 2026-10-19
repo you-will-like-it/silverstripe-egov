@@ -321,7 +321,7 @@ class AiDocumentVerificationService
         }
 
         // 5. Iznos
-        [$min, $max] = $best->expectedRange($request->getFeeUnitCount());
+        [$min, $max] = $request->expectedRangeFor($best);
         if ($max <= 0.0) {
             $checks[] = new CheckResult('amount', 'Iznos', VerificationLight::Yellow, sprintf(
                 'Iznos za „%s“ nije definisan u katalogu%s – referent provjerava prema tarifi.',

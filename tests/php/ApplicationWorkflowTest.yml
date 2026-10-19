@@ -59,6 +59,20 @@ YouWillLikeIT\EGov\Model\RequiredDocument:
     IsMandatory: false
     IsPaymentProof: true
 
+YouWillLikeIT\EGov\Model\PaymentAccount:
+  fees:
+    Title: 'Gradske administrativne takse'
+    AccountNumber: '1321500299280097'
+
+YouWillLikeIT\EGov\Model\FeeItem:
+  rangeFee:
+    Procedure: =>YouWillLikeIT\EGov\Model\ProcedureDefinition.urbanConsent
+    PaymentAccount: =>YouWillLikeIT\EGov\Model\PaymentAccount.fees
+    Title: 'Gradska administrativna taksa'
+    Amount: 70
+    AmountMax: 300
+    RevenueType: '722131'
+
 YouWillLikeIT\EGov\Model\ApplicationRequest:
   draft:
     Procedure: =>YouWillLikeIT\EGov\Model\ProcedureDefinition.urbanConsent

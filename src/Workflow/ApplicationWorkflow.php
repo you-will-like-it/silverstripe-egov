@@ -14,6 +14,8 @@ use YouWillLikeIT\EGov\Enum\RequestStatus;
 use YouWillLikeIT\EGov\Model\ApplicationRequest;
 use YouWillLikeIT\EGov\Model\ApplicationStatusChange;
 use YouWillLikeIT\EGov\Model\AuditLogEntry;
+use YouWillLikeIT\EGov\Model\FeeItem;
+use YouWillLikeIT\EGov\Model\RequiredDocument;
 use YouWillLikeIT\EGov\Model\SupplementItem;
 use YouWillLikeIT\EGov\Service\AuditLogger;
 use YouWillLikeIT\EGov\Service\DeadlineCalculator;
@@ -231,14 +233,15 @@ class ApplicationWorkflow
         }
 
         $items = $this->assertPreconditions($request, $from, $to, $context);
+        $fees = $this->assertAssessedFees($request, $to, $context, $items);
         $now = $this->now();
         $log = null;
 
-        DB::get_conn()->withTransaction(function () use ($request, $from, $to, $context, $now, $items, &$log): void {
-            $this->applyEffects($request, $from, $to, $context, $now, $items);
+        DB::get_conn()->withTransaction(function () use ($request, $from, $to, $context, $now, $items, $fees, &$log): void {
+            $this->applyEffects($request, $from, $to, $context, $now, $items, $fees);
             $request->applyStatusFromWorkflow($to);
             $request->write();
-            $log = $this->history($request, $from, $to, $this->composeLogNote($request, $to, $context), $context);
+            $log = $this->history($request, $from, $to, $this->composeLogNote($request, $to, $context, $fees), $context);
         });
 
         if ($context->notifyCitizen && $to !== RequestStatus::Submitted && $request->hasEmail() && $this->notifications->shouldNotifyCitizen($to)) {
@@ -310,9 +313,64 @@ class ApplicationWorkflow
     }
 
     /**
+     * Amounts fixed by the referent for range / "prema tarifi" fees.
+     *
+     * Closed input (a number inside the catalogue range, never free text). Required when the
+     * citizen is asked to pay: target AwaitingPayment, or a supplement item for a payment proof.
+     *
      * @param array<int, \YouWillLikeIT\EGov\Enum\SupplementReason> $items
+     * @return array<int, float> FeeItemID => amount (only newly provided values)
      */
-    private function applyEffects(ApplicationRequest $request, RequestStatus $from, RequestStatus $to, TransitionContext $context, string $now, array $items): void
+    private function assertAssessedFees(ApplicationRequest $request, RequestStatus $to, TransitionContext $context, array $items): array
+    {
+        if (!in_array($to, [RequestStatus::Incomplete, RequestStatus::AwaitingPayment], true)) {
+            return [];
+        }
+        $assessable = [];
+        foreach ($request->getAssessableFees() as $fee) {
+            $assessable[(int) $fee->ID] = $fee;
+        }
+
+        $valid = [];
+        foreach ($context->assessedFees as $feeId => $amount) {
+            $fee = $assessable[(int) $feeId] ?? null;
+            if ($fee === null) {
+                throw new TransitionException('Iznos se može utvrditi samo za takse koje u katalogu imaju raspon ili iznos „prema tarifi“.');
+            }
+            $amount = round((float) $amount, 2);
+            [$min, $max] = $fee->expectedRange($request->getFeeUnitCount());
+            if ($max > 0.0 ? ($amount + 0.001 < $min || $amount - 0.001 > $max) : $amount <= 0.0) {
+                throw new TransitionException(sprintf(
+                    'Iznos za „%s“ mora biti %s.',
+                    $fee->Title,
+                    $max > 0.0 ? 'u rasponu ' . FeeItem::km($min) . ' – ' . FeeItem::km($max) : 'veći od 0'
+                ));
+            }
+            $valid[(int) $feeId] = $amount;
+        }
+
+        $asksForPayment = $to === RequestStatus::AwaitingPayment;
+        foreach (array_keys($items) as $docId) {
+            if ((bool) RequiredDocument::get()->byID($docId)?->IsPaymentProof) {
+                $asksForPayment = true;
+            }
+        }
+        if ($asksForPayment) {
+            $known = $request->getAssessedFees();
+            foreach ($assessable as $feeId => $fee) {
+                if (!array_key_exists($feeId, $valid) && !array_key_exists($feeId, $known)) {
+                    throw new TransitionException(sprintf('Utvrdite iznos takse „%s“ prije poziva na uplatu.', $fee->Title));
+                }
+            }
+        }
+        return $valid;
+    }
+
+    /**
+     * @param array<int, \YouWillLikeIT\EGov\Enum\SupplementReason> $items
+     * @param array<int, float> $fees
+     */
+    private function applyEffects(ApplicationRequest $request, RequestStatus $from, RequestStatus $to, TransitionContext $context, string $now, array $items, array $fees = []): void
     {
         $restartDeadline = $from->suspendsDeadline() && !$to->suspendsDeadline() && !$to->isTerminal();
 
@@ -336,6 +394,9 @@ class ApplicationWorkflow
                 $request->SupplementDueDate = $this->deadlines->supplementDueDateFor($request, $days);
                 $request->DecisionDueDate = null;
                 $request->AssignedToID = 0; // unlock while waiting for the citizen
+                if ($fees !== []) {
+                    $request->setAssessedFees($fees); // before render(): payment line uses the fixed amount
+                }
                 foreach ($items as $docId => $reason) {
                     SupplementItem::create([
                         'RequestID' => $request->ID,
@@ -390,9 +451,17 @@ class ApplicationWorkflow
         return $log;
     }
 
-    private function composeLogNote(ApplicationRequest $request, RequestStatus $to, TransitionContext $context): string
+    /**
+     * @param array<int, float> $fees
+     */
+    private function composeLogNote(ApplicationRequest $request, RequestStatus $to, TransitionContext $context, array $fees = []): string
     {
+        $feeNotes = [];
+        foreach ($fees as $feeId => $amount) {
+            $feeNotes[] = sprintf('Utvrđena taksa „%s“: %s', (string) FeeItem::get()->byID($feeId)?->Title, FeeItem::km($amount));
+        }
         $parts = array_filter([
+            implode("\n", $feeNotes),
             trim($context->internalNote),
             $to === RequestStatus::Dismissed && $context->dismissalReason ? 'Razlog odbacivanja: ' . $context->dismissalReason->label() : '',
             $to === RequestStatus::Rejected ? trim($context->rejectionNote) : '',

@@ -117,7 +117,7 @@ class SupplementNoticeBuilder
         $parts = [];
         foreach ($request->getApplicableFees() as $fee) {
             /** @var FeeItem $fee */
-            [$min, $max] = $fee->expectedRange($request->getFeeUnitCount());
+            [$min, $max] = $request->expectedRangeFor($fee);
             $parts[] = sprintf(
                 '%s: račun %s, vrsta prihoda %s, šifra općine %s%s, iznos %s',
                 $fee->Title,

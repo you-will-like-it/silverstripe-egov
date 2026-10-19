@@ -13,6 +13,7 @@ use YouWillLikeIT\EGov\Enum\DismissalReason;
 use YouWillLikeIT\EGov\Enum\RequestStatus;
 use YouWillLikeIT\EGov\Model\ApplicationRequest;
 use YouWillLikeIT\EGov\Model\AuditLogEntry;
+use YouWillLikeIT\EGov\Model\FeeItem;
 use YouWillLikeIT\EGov\Model\RequiredDocument;
 use YouWillLikeIT\EGov\Model\SupplementItem;
 use YouWillLikeIT\EGov\Task\DeadlineMonitorTask;
@@ -162,6 +163,51 @@ final class ApplicationWorkflowTest extends SapphireTest
             member: $this->member('mujo'),
             supplementItems: [$plan->ID => 'WrongPayment'],
         ));
+    }
+
+    public function testAwaitingPaymentRequiresAssessedAmountForRangeFee(): void
+    {
+        $r = $this->inProcess('mujo');
+        $slip = $this->objFromFixture(RequiredDocument::class, 'slip');
+        $this->expectException(TransitionException::class);
+        $this->expectExceptionMessageMatches('/Utvrdite iznos takse/');
+        $this->wf()->transition($r, RequestStatus::AwaitingPayment, new TransitionContext(
+            member: $this->member('mujo'),
+            supplementItems: [$slip->ID => 'Missing'],
+        ));
+    }
+
+    public function testAssessedAmountMustBeInsideCatalogueRange(): void
+    {
+        $r = $this->inProcess('mujo');
+        $slip = $this->objFromFixture(RequiredDocument::class, 'slip');
+        $fee = $this->objFromFixture(FeeItem::class, 'rangeFee');
+        $this->expectException(TransitionException::class);
+        $this->wf()->transition($r, RequestStatus::AwaitingPayment, new TransitionContext(
+            member: $this->member('mujo'),
+            supplementItems: [$slip->ID => 'Missing'],
+            assessedFees: [$fee->ID => 500.0],
+        ));
+    }
+
+    public function testAssessedAmountIsUsedInNoticeAndPayments(): void
+    {
+        $r = $this->inProcess('mujo');
+        $slip = $this->objFromFixture(RequiredDocument::class, 'slip');
+        $fee = $this->objFromFixture(FeeItem::class, 'rangeFee');
+
+        $this->wf()->transition($r, RequestStatus::AwaitingPayment, new TransitionContext(
+            member: $this->member('mujo'),
+            supplementItems: [$slip->ID => 'Missing'],
+            assessedFees: [$fee->ID => 276.0],
+        ));
+
+        self::assertSame(RequestStatus::AwaitingPayment, $r->getStatusEnum());
+        self::assertSame([(int) $fee->ID => 276.0], $r->getAssessedFees());
+        self::assertSame([276.0, 276.0], $r->expectedRangeFor($fee));
+        self::assertStringContainsString('276,00 KM', (string) $r->SupplementRequestText);
+        self::assertStringNotContainsString('300,00 KM', (string) $r->SupplementRequestText);
+        self::assertSame(276.0, $r->getExpectedPayments()->first()->AmountMin);
     }
 
     public function testDismissRequiresReason(): void

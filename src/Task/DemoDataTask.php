@@ -582,7 +582,7 @@ class DemoDataTask extends BuildTask
             $s = (array) ($spec['slip'] ?? []);
             $fee = $request->getApplicableFees()->filter('PaymentAccountID:GreaterThan', 0)->first();
             $account = (string) ($s['account'] ?? ($fee instanceof FeeItem ? $fee->PaymentAccount()->AccountNumber : ''));
-            [$min] = $fee instanceof FeeItem ? $fee->expectedRange($request->getFeeUnitCount()) : [0.0];
+            [$min] = $fee instanceof FeeItem ? $request->expectedRangeFor($fee) : [0.0];
             $amount = (float) ($s['amount'] ?? $min);
             $revenue = (string) ($s['revenue'] ?? ($fee instanceof FeeItem ? $fee->RevenueType : ''));
             $municipality = (string) ($s['municipality'] ?? TenantConfig::singleton()->municipalityCode());
