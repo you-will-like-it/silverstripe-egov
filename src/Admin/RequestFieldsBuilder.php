@@ -32,6 +32,7 @@ use YouWillLikeIT\EGov\Model\ApplicationRequest;
 use YouWillLikeIT\EGov\Model\CadastralMunicipality;
 use YouWillLikeIT\EGov\Model\MunicipalService;
 use YouWillLikeIT\EGov\Model\ProcedureDefinition;
+use YouWillLikeIT\EGov\Model\FeeItem;
 use YouWillLikeIT\EGov\Model\RequiredDocument;
 use YouWillLikeIT\EGov\Service\DeadlineCalculator;
 
@@ -189,6 +190,20 @@ class RequestFieldsBuilder
                 ($suggested !== null && array_key_exists($suggested, $options)) ? $suggested : null
             )->setEmptyString('— u redu —')
                 ->setDescription($suggested !== null ? 'Prijedlog automatske provjere priloga.' : '');
+        }
+
+        $assessable = $r->getAssessableFees();
+        if ($assessable !== []) {
+            $fields[] = HeaderField::create($p . 'FeeHead', 'Utvrđeni iznos takse (za „Čeka uplatu“ i dopunu dokaza o uplati)', 4);
+            $assessed = $r->getAssessedFees();
+            foreach ($assessable as $fee) {
+                [$min, $max] = $fee->expectedRange($r->getFeeUnitCount());
+                $fields[] = NumericField::create($p . 'Fee_' . $fee->ID, $fee->Title . ' (KM)', $assessed[(int) $fee->ID] ?? null)
+                    ->setScale(2)
+                    ->setDescription($max > 0.0
+                        ? sprintf('Raspon prema tarifi: %s – %s. Iznos se upisuje u poziv za uplatu.', FeeItem::km($min), FeeItem::km($max))
+                        : 'Iznos nije definisan u katalogu – utvrdite ga prema tarifi.');
+            }
         }
 
         $fields[] = NumericField::create(

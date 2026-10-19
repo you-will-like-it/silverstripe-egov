@@ -91,6 +91,7 @@ use YouWillLikeIT\EGov\Validation\IdentificationNumberValidator;
  * @property string|null $AiCheckedAt
  * @property string|null $PrivacyConsentAt
  * @property string|null $InternalNote
+ * @property string|null $AssessedFees  JSON {FeeItemID: amount} – amount fixed by the referent for range fees
  * @property int $ProcedureID
  * @property int $ServiceID
  * @property int $CadastralMunicipalityNewID
@@ -170,6 +171,7 @@ class ApplicationRequest extends DataObject implements PermissionProvider
         'AiCheckedAt' => 'Datetime',
         'PrivacyConsentAt' => 'Datetime',
         'InternalNote' => 'Text',
+        'AssessedFees' => 'Text',
     ];
 
     private static array $has_one = [
@@ -713,13 +715,77 @@ class ApplicationRequest extends DataObject implements PermissionProvider
     }
 
     /**
+     * Expected amount of a fee for this request: the amount fixed by the referent
+     * (range / "prema tarifi" fees) or the catalogue range for the chargeable units.
+     *
+     * @return array{0: float, 1: float}
+     */
+    public function expectedRangeFor(FeeItem $fee): array
+    {
+        $assessed = $this->getAssessedFees()[(int) $fee->ID] ?? null;
+        if ($assessed !== null) {
+            return [$assessed, $assessed];
+        }
+        return $fee->expectedRange($this->getFeeUnitCount());
+    }
+
+    /**
+     * Fees whose exact amount the referent has to fix (range or amount not defined in the catalogue).
+     *
+     * @return list<FeeItem>
+     */
+    public function getAssessableFees(): array
+    {
+        $out = [];
+        foreach ($this->getApplicableFees() as $fee) {
+            [, $max] = $fee->expectedRange($this->getFeeUnitCount());
+            if ($fee->isRange() || $max <= 0.0) {
+                $out[] = $fee;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * @return array<int, float> FeeItemID => amount
+     */
+    public function getAssessedFees(): array
+    {
+        try {
+            $data = json_decode((string) $this->AssessedFees, true, 4, JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            return [];
+        }
+        $out = [];
+        foreach (is_array($data) ? $data : [] as $feeId => $amount) {
+            if (is_numeric($amount)) {
+                $out[(int) $feeId] = round((float) $amount, 2);
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * @param array<int, float> $amounts FeeItemID => amount (merged into existing values)
+     */
+    public function setAssessedFees(array $amounts): static
+    {
+        $merged = $this->getAssessedFees();
+        foreach ($amounts as $feeId => $amount) {
+            $merged[(int) $feeId] = round((float) $amount, 2);
+        }
+        $this->AssessedFees = $merged === [] ? null : json_encode($merged, JSON_FORCE_OBJECT);
+        return $this;
+    }
+
+    /**
      * @return ArrayList<ArrayData>
      */
     public function getExpectedPayments(): ArrayList
     {
         $out = ArrayList::create();
         foreach ($this->getApplicableFees() as $fee) {
-            [$min, $max] = $fee->expectedRange($this->getFeeUnitCount());
+            [$min, $max] = $this->expectedRangeFor($fee);
             $out->push(ArrayData::create([
                 'Fee' => $fee,
                 'AmountMin' => $min,

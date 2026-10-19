@@ -180,9 +180,17 @@ class ApplicationRequestItemRequest extends GridFieldDetailForm_ItemRequest
             $this->saveFormIntoRecord($data, $form);
 
             $items = [];
+            $fees = [];
             foreach ($data as $key => $value) {
                 if (str_starts_with((string) $key, $p . 'Doc_') && (string) $value !== '') {
                     $items[(int) substr((string) $key, strlen($p . 'Doc_'))] = (string) $value;
+                }
+                if (str_starts_with((string) $key, $p . 'Fee_') && trim((string) $value) !== '') {
+                    $amount = str_replace(',', '.', trim((string) $value));
+                    if (!is_numeric($amount)) {
+                        throw new TransitionException('Iznos takse mora biti broj.');
+                    }
+                    $fees[(int) substr((string) $key, strlen($p . 'Fee_'))] = (float) $amount;
                 }
             }
             ApplicationWorkflow::singleton()->transition($r, $target, new TransitionContext(
@@ -193,6 +201,7 @@ class ApplicationRequestItemRequest extends GridFieldDetailForm_ItemRequest
                 supplementDays: is_numeric($data[$p . 'SupplementDays'] ?? null) ? (int) $data[$p . 'SupplementDays'] : null,
                 dismissalReason: DismissalReason::tryFrom((string) ($data[$p . 'DismissalReason'] ?? '')),
                 rejectionNote: trim((string) ($data[$p . 'RejectionReason'] ?? '')),
+                assessedFees: $fees,
             ));
             return sprintf('Status promijenjen u „%s“.', $target->label());
         });

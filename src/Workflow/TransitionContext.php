@@ -20,6 +20,7 @@ final readonly class TransitionContext
 
     /**
      * @param array<int, string> $supplementItems RequiredDocumentID => SupplementReason value
+     * @param array<int, float> $assessedFees FeeItemID => amount fixed by the referent (range fees only)
      */
     public function __construct(
         public string $actorType = self::ACTOR_STAFF,
@@ -30,6 +31,7 @@ final readonly class TransitionContext
         public ?DismissalReason $dismissalReason = null,
         public string $rejectionNote = '',
         public bool $notifyCitizen = true,
+        public array $assessedFees = [],
     ) {
     }
 

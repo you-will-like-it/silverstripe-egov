@@ -134,6 +134,20 @@ Portal:  Nacrt ─(potvrda emailom)─┐
   dopune i broj odbijanja/odbacivanja.
 - Automatska provjera priloga samo **predodabire** stavke, a referent potvrđuje.
 
+### 2.1a Taksa u rasponu („utvrđuje služba“)
+
+Za takse koje u katalogu imaju raspon (`AmountMax` > `Amount`) ili iznos 0 („prema tarifi“), referent u
+obradi upisuje **utvrđeni iznos**. Unosi se broj, ne slobodan tekst, i sistem ga provjerava prema rasponu
+iz kataloga.
+
+- Iznos je obavezan pri prelazu u **„Čeka uplatu“** i pri dopuni dokaza o uplati.
+- Iznos se automatski upisuje u poziv za uplatu, email, portal, PDF i provjeru uplatnice (tačan iznos → 🟢).
+- U historiji se bilježi kao „Utvrđena taksa …“.
+
+Preporuka za takve procedure:
+- dokaz o uplati označiti kao **neobavezan** pri podnošenju;
+- u napomeni takse (`AmountNote`) navesti „Tačan iznos utvrđuje služba – uplatu izvršite po pozivu.“
+
 ### 2.2 Napomene
 
 - **Interna bilješka** i napomena uz promjenu statusa vidljive su samo službi.
