@@ -203,7 +203,7 @@ final class ApplicationWorkflowTest extends SapphireTest
         ));
 
         self::assertSame(RequestStatus::AwaitingPayment, $r->getStatusEnum());
-        self::assertSame([(int) $fee->ID => 276.0], $r->getAssessedFees());
+        self::assertSame([(int) $fee->ID => 276.0], $r->getAssessedFeeAmounts());
         self::assertSame([276.0, 276.0], $r->expectedRangeFor($fee));
         self::assertStringContainsString('276,00 KM', (string) $r->SupplementRequestText);
         self::assertStringNotContainsString('300,00 KM', (string) $r->SupplementRequestText);

@@ -196,7 +196,7 @@ class RequestFieldsBuilder
         $assessable = $r->getAssessableFees();
         if ($assessable !== []) {
             $fields[] = HeaderField::create($p . 'FeeHead', 'Utvrđeni iznos takse (za „Čeka uplatu“ i dopunu dokaza o uplati)', 4);
-            $assessed = $r->getAssessedFees();
+            $assessed = $r->getAssessedFeeAmounts();
             foreach ($assessable as $fee) {
                 [$min, $max] = $fee->expectedRange($r->getFeeUnitCount());
                 $fields[] = NumericField::create($p . 'Fee_' . $fee->ID, $fee->Title . ' (KM)', $assessed[(int) $fee->ID] ?? null)
@@ -227,7 +227,7 @@ class RequestFieldsBuilder
     private function paymentsSummary(): string
     {
         $r = $this->record;
-        $assessed = $r->getAssessedFees();
+        $assessed = $r->getAssessedFeeAmounts();
         $assessable = array_map(static fn (FeeItem $f): int => (int) $f->ID, $r->getAssessableFees());
         $lines = [];
         foreach ($r->getExpectedPayments() as $row) {

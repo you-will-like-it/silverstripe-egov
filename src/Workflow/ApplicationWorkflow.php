@@ -356,7 +356,7 @@ class ApplicationWorkflow
             }
         }
         if ($asksForPayment) {
-            $known = $request->getAssessedFees();
+            $known = $request->getAssessedFeeAmounts();
             foreach ($assessable as $feeId => $fee) {
                 if (!array_key_exists($feeId, $valid) && !array_key_exists($feeId, $known)) {
                     throw new TransitionException(sprintf('Utvrdite iznos takse „%s“ prije poziva na uplatu.', $fee->Title));
@@ -395,7 +395,7 @@ class ApplicationWorkflow
                 $request->DecisionDueDate = null;
                 $request->AssignedToID = 0; // unlock while waiting for the citizen
                 if ($fees !== []) {
-                    $request->setAssessedFees($fees); // before render(): payment line uses the fixed amount
+                    $request->setAssessedFeeAmounts($fees); // before render(): payment line uses the fixed amount
                 }
                 foreach ($items as $docId => $reason) {
                     SupplementItem::create([
