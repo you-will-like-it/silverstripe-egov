@@ -22,7 +22,7 @@
 
 <% if $IsSupplementRound %>
     <div class="egov-alert egov-alert--warning" role="status">
-        <strong>Služba traži dopunu zahtjeva<% if $Case.SupplementDueDate %> do $Case.SupplementDueFormatted<% end_if %>.</strong>
+        <strong>Služba traži dopunu zahtjeva<% if $Case.SupplementDueDate %> do $Case.SupplementDueFormatted<% else %>.<% end_if %></strong>
         <div class="egov-pre">$Case.SupplementRequestText</div>
     </div>
 <% end_if %>
@@ -69,7 +69,7 @@
                         <% loop $Uploaded %>
                             <li>
                                 <span>$OriginalFilename <span class="egov-muted">($HumanFileSize)</span></span>
-                                <% if $Top.AcceptsUploads && $Kind == 'Citizen' %>
+                                <% if $CanBeRemovedByCitizen %>
                                     <button type="submit" class="egov-btn egov-btn--link" form="Form_CaseActionsForm" name="action_doRemove" value="$ID" formnovalidate>Ukloni</button>
                                 <% end_if %>
                             </li>

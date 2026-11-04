@@ -1,0 +1,79 @@
+# Bosanski (ijekavica) – dopuna prevoda jezgra Silverstripe-a za ekrane e-Uprave.
+# Referentima u Security → Members postaviti „Jezik sučelja“ = bosanski (bs_BA).
+bs:
+  SilverStripe\Forms\GridField\GridFieldEditButton:
+    EDIT: Uredi
+  SilverStripe\Forms\GridField\GridFieldViewButton:
+    VIEW: Pregled
+  SilverStripe\Forms\GridField\GridFieldPaginator:
+    First: Prva
+    InputTitle: 'Trenutna stranica: {current} od {total}'
+    Last: Posljednja
+    Next: Sljedeća
+    OF: od
+    Page: Stranica
+    Pagination: Stranice
+    PaginationForTitle: 'Stranice: {title}'
+    Previous: Prethodna
+    View: Prikaz
+  SilverStripe\Forms\GridField\GridFieldDetailForm:
+    CancelBtn: Odustani
+    Create: Kreiraj
+    Delete: Obriši
+    DeletePermissionsFailure: 'Nemate pravo brisanja'
+    Deleted: 'Obrisano: {type} „{name}“'
+    Save: Sačuvaj
+    Saved: 'Sačuvano: {name} {link}'
+  SilverStripe\Forms\GridField\GridFieldDetailForm_ItemRequest:
+    NEW: 'Dodaj novi zapis'
+    NEXT: 'Sljedeći zapis'
+    PREVIOUS: 'Prethodni zapis'
+    SAVEDUP: 'Uspješno sačuvano'
+    SAVETOASTMESSAGE: '{type} „{title}“ je sačuvan.'
+  SilverStripe\Forms\GridField\GridField:
+    Add: 'Dodaj: {name}'
+    AddNew: 'Dodaj: {name}'
+    CSVEXPORT: 'Izvezi u CSV'
+    Filter: Filtriraj
+    FilterBy: 'Filtriraj po '
+    Find: Traži
+    NewRecord: 'Novi zapis – {type}'
+    NoItemsFound: 'Nema rezultata'
+    OpenFilter: 'Otvori pretragu i filtere'
+    PRINTEDAT: Odštampano
+    PRINTEDBY: Odštampao/la
+    PlaceHolder: 'Traži: {type}'
+    PlaceHolderWithLabels: 'Traži {type} po: {name}'
+    Print: Štampaj
+    ResetFilter: Poništi
+  SilverStripe\Forms\GridField\GridFieldFilterHeader:
+    Search: 'Traži „{name}“'
+    Search_Default: Traži
+  SilverStripe\ORM\FieldType\DBDate:
+    DAYS_SHORT_PLURALS:
+      one: '{count} dan'
+      few: '{count} dana'
+      other: '{count} dana'
+    HOURS_SHORT_PLURALS:
+      one: '{count} sat'
+      few: '{count} sata'
+      other: '{count} sati'
+    LessThanMinuteAgo: 'manje od minute'
+    MINUTES_SHORT_PLURALS:
+      one: '{count} min'
+      few: '{count} min'
+      other: '{count} min'
+    MONTHS_SHORT_PLURALS:
+      one: '{count} mjesec'
+      few: '{count} mjeseca'
+      other: '{count} mjeseci'
+    SECONDS_SHORT_PLURALS:
+      one: '{count} sek'
+      few: '{count} sek'
+      other: '{count} sek'
+    TIMEDIFFAGO: 'prije {difference}'
+    TIMEDIFFIN: 'za {difference}'
+    YEARS_SHORT_PLURALS:
+      one: '{count} godina'
+      few: '{count} godine'
+      other: '{count} godina'

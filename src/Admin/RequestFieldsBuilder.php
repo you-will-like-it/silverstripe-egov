@@ -251,7 +251,7 @@ class RequestFieldsBuilder
             $status === RequestStatus::InProcess && $r->AssignedToID && !$r->isProcessor($this->member)
                 => sprintf('Predmet obrađuje %s (od %s). Dostupan je samo za pregled.', $r->AssignedTo()->getName(), $r->formatDateTime((string) $r->ProcessingStartedAt)),
             $status === RequestStatus::InProcess => 'Predmet je otključan. Kliknite „Pokreni obradu“ da ga preuzmete.',
-            $status->isSupplementRound() => sprintf('Čeka se dopuna stranke do %s. Predmet je otključan.', $r->formatDate((string) $r->SupplementDueDate)),
+            $status->isSupplementRound() => sprintf('Čeka se dopuna stranke do %s Predmet je otključan.', $r->formatDate((string) $r->SupplementDueDate)),
             $status === RequestStatus::ReadyForPickup => 'Akt je spreman. Kod preuzimanja kliknite „Evidentiraj preuzimanje“.',
             default => 'Predmet je u završnom statusu.',
         };

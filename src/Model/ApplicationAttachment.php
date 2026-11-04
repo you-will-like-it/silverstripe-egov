@@ -211,6 +211,30 @@ class ApplicationAttachment extends DataObject
         return (string) ($this->getReport()['detected_type'] ?? '');
     }
 
+    /**
+     * Citizen may remove only own uploads that the service has not received yet:
+     * everything while the request is a draft, during a supplement round only files
+     * added in that round.
+     */
+    public function canBeRemovedByCitizen(): bool
+    {
+        $request = $this->Request();
+        if ($this->Kind !== self::KIND_CITIZEN || !$request->getStatusEnum()->acceptsCitizenUploads()) {
+            return false;
+        }
+        if ($request->getStatusEnum() === \YouWillLikeIT\EGov\Enum\RequestStatus::Draft) {
+            return true;
+        }
+        $roundStart = $request->StatusChanges()
+            ->filter('ToStatus', [
+                \YouWillLikeIT\EGov\Enum\RequestStatus::Incomplete->value,
+                \YouWillLikeIT\EGov\Enum\RequestStatus::AwaitingPayment->value,
+            ])
+            ->sort('Created', 'DESC')
+            ->first();
+        return $roundStart !== null && strtotime((string) $this->Created) >= strtotime((string) $roundStart->Created);
+    }
+
     public function canView($member = null): bool
     {
         return $this->Request()->canView($member);

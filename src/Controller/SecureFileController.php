@@ -137,7 +137,7 @@ class SecureFileController extends Controller
             $kinds[ApplicationAttachment::KIND_RESULT] = 'Primjerak izdatog akta (rješenje, uvjerenje …)';
         }
         $file = FileField::create('Attachment', 'Datoteka (PDF, JPG, PNG)');
-        $file->getValidator()->setAllowedExtensions((array) AttachmentUploadService::config()->get('allowed_extensions'));
+        $file->getValidator()->setAllowedExtensions(AttachmentUploadService::allowedExtensions());
         $file->getValidator()->setAllowedMaxFileSize(['*' => (int) AttachmentUploadService::config()->get('max_file_size_mb') * 1024 * 1024]);
 
         $form = Form::create(

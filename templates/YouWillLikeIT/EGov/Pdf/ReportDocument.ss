@@ -8,7 +8,8 @@
     h2 { font-size: 11pt; margin: 14pt 0 4pt 0; border-bottom: 0.4mm solid #0b3d6e; color: #0b3d6e; padding-bottom: 2pt; }
     .meta { color: #555; margin-bottom: 6pt; }
     table.r { width: 100%; border-collapse: collapse; }
-    table.r th { background: #eef2f7; text-align: right; padding: 3pt 3pt; border-bottom: 0.3mm solid #999; font-weight: bold; }
+    table.r th { background: #eef2f7; text-align: right; padding: 3pt 2pt; border-bottom: 0.3mm solid #999; font-weight: bold; font-size: 7pt; line-height: 1.15; vertical-align: bottom; }
+    table.r td { white-space: nowrap; }
     table.r th.l, table.r td.l { text-align: left; }
     table.r td { padding: 2.5pt 3pt; border-bottom: 0.15mm solid #ddd; text-align: right; }
     table.r tr.t td { font-weight: bold; border-top: 0.4mm solid #444; background: #f7f7f7; }
@@ -30,19 +31,19 @@
         <thead>
             <tr>
                 <th class="l" width="24%"><% if $ShowReferentColumns %>Referent<% else %>Grupa<% end_if %></th>
-                <th class="l" width="13%"></th>
-                <th>Ukupno</th>
+                <th class="l" width="9%"></th>
+                <th>Uku-<br>pno</th>
                 <th>Portal</th>
                 <th>Šalter</th>
-                <th>Završeno</th>
-                <th>Odbijeno</th>
-                <th>Odbačeno</th>
-                <th>U toku</th>
-                <th>Prekoračen rok</th>
-                <th>Riješeno nakon roka</th>
-                <th>Sa dopunom</th>
-                <th>Prosj. dana</th>
-                <% if $ShowReferentColumns %><th>Stavki dopune</th><th>Odbijanja / odbacivanja</th><% end_if %>
+                <th>Zavr-<br>šeno</th>
+                <th>Odbi-<br>jeno</th>
+                <th>Odba-<br>čeno</th>
+                <th>U<br>toku</th>
+                <th>Prekor.<br>rok</th>
+                <th>Nakon<br>roka</th>
+                <th>Sa<br>dopunom</th>
+                <th>Prosj.<br>dana</th>
+                <% if $ShowReferentColumns %><th>Stavki<br>dopune</th><th>Odbij./<br>odbač.</th><% end_if %>
             </tr>
         </thead>
         <tbody>
@@ -78,7 +79,7 @@
 
 <p class="legend">
     <strong>Napomene:</strong> Uključeni su predmeti podneseni u $Year. godini (portal nakon potvrde emaila, šalter nakon prijema).
-    „Prekoračen rok“ = otvoreni predmeti čiji je zakonski rok istekao; „Riješeno nakon roka“ = završeni nakon isteka zakonskog roka.
+    „Prekor. rok“ = otvoreni predmeti čiji je zakonski rok istekao; „Nakon roka“ = završeni nakon isteka zakonskog roka.
     „Prosj. dana“ = prosječno trajanje od podnošenja do okončanja (kalendarski dani, uključuje vrijeme čekanja na dopunu).
     Kod referenata se predmet vodi na zadnjeg referenta koji ga je obrađivao.
 </p>

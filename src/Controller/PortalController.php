@@ -65,7 +65,10 @@ class PortalController extends Controller
         Requirements::css('youwilllikeit/silverstripe-egov: client/dist/egov.css');
         Requirements::javascript('youwilllikeit/silverstripe-egov: client/dist/egov.js', ['type' => 'module', 'defer' => true]);
         $this->getResponse()->addHeader('X-Robots-Tag', 'noindex, nofollow');
-        $this->getResponse()->addHeader('Referrer-Policy', 'no-referrer');
+        // same-origin (not no-referrer): multiform uses redirectBack() after a failed step validation;
+        // without a referer Silverstripe would send the citizen to the home page and the form would be lost.
+        // Case URLs (hash) still never leak to other sites.
+        $this->getResponse()->addHeader('Referrer-Policy', 'same-origin');
     }
 
     public function Link($action = null): string
@@ -168,7 +171,7 @@ class PortalController extends Controller
             'CaseActionsForm' => $status->acceptsCitizenUploads() ? $this->CaseActionsForm($request) : null,
             'StatusLink' => $this->Link('status'),
             'MaxFileSizeMb' => (int) AttachmentUploadService::config()->get('max_file_size_mb'),
-            'AllowedExtensions' => implode(', ', (array) AttachmentUploadService::config()->get('allowed_extensions')),
+            'AllowedExtensions' => implode(', ', AttachmentUploadService::allowedExtensions()),
         ]);
     }
 
@@ -179,7 +182,7 @@ class PortalController extends Controller
 
         $file = FileField::create('Attachment', 'Datoteka (PDF, JPG, PNG)');
         $file->setAttribute('accept', implode(',', AttachmentUploadService::singleton()->acceptAttribute()));
-        $file->getValidator()->setAllowedExtensions((array) AttachmentUploadService::config()->get('allowed_extensions'));
+        $file->getValidator()->setAllowedExtensions(AttachmentUploadService::allowedExtensions());
         $file->getValidator()->setAllowedMaxFileSize(['*' => (int) AttachmentUploadService::config()->get('max_file_size_mb') * 1024 * 1024]);
 
         $form = Form::create(
@@ -347,11 +350,9 @@ class PortalController extends Controller
 
         return $this->renderPage('YouWillLikeIT\\EGov\\Portal\\Message', [
             'Title' => 'Zahtjev je podnesen',
-            'Message' => sprintf(
-                'Vaš zahtjev je zaprimljen. Kod predmeta: %s. Sačuvajte ovaj kod – uz JMBG/ID broj služi za praćenje statusa. '
+            // the tracking code itself is rendered (with copy button) by the template
+            'Message' => 'Vaš zahtjev je zaprimljen. Sačuvajte kod predmeta – uz JMBG/ID broj služi za praćenje statusa. '
                 . 'Gotov dokument preuzimate lično na šalteru, gdje ćete potpisati zahtjev.',
-                $case->TrackingCode
-            ),
             'Tone' => 'success',
             'TrackingCode' => $case->TrackingCode,
             'CaseLink' => $case->getPortalLink('predmet'),
