@@ -114,14 +114,23 @@ class SeedCatalogueTask extends BuildTask
             'from_email' => 'EGovFromEmail',
         ];
         $changed = false;
+        // First import (no municipality name yet): apply everything, including fields that
+        // already carry a DB default such as EGovMunicipalityType = 'Municipality'.
+        $fresh = trim((string) $site->getField('EGovMunicipalityName')) === '';
         foreach ($map as $key => $field) {
             if (!array_key_exists($key, $tenant)) {
                 continue;
             }
-            if ($update || trim((string) $site->getField($field)) === '') {
+            if ($update || $fresh || trim((string) $site->getField($field)) === '') {
                 $site->setField($field, (string) $tenant[$key]);
                 $changed = true;
             }
+        }
+        // CMS header shows SiteConfig.Title – replace the installer default with the municipality name
+        if (in_array(trim((string) $site->Title), ['', 'Your Site Name'], true) && array_key_exists('name', $tenant)) {
+            $type = ($tenant['type'] ?? '') === 'City' ? 'Grad' : 'Općina';
+            $site->Title = sprintf('e-Uprava – %s %s', $type, (string) $tenant['name']);
+            $changed = true;
         }
         if ($changed) {
             $site->write();
@@ -150,7 +159,7 @@ class SeedCatalogueTask extends BuildTask
                 $service->Phone = (string) ($row['phone'] ?? $service->Phone);
                 $service->Sort = (int) ($row['sort'] ?? $i);
                 $service->write();
-                $output->writeln(sprintf('%s službu %s – %s', $isNew ? 'Kreirana' : 'Ažurirana', $code, $service->Title));
+                $output->writeln(sprintf('Služba %s – %s: %s', $code, $service->Title, $isNew ? 'kreirana' : 'ažurirana'));
             }
             $out[$code] = $service;
         }
@@ -289,7 +298,7 @@ class SeedCatalogueTask extends BuildTask
                 ])->write();
             }
 
-            $output->writeln(sprintf('%s proceduru %s – %s', $isNew ? 'Kreirana' : 'Ažurirana', $code, $procedure->Title));
+            $output->writeln(sprintf('Procedura %s – %s: %s', $code, $procedure->Title, $isNew ? 'kreirana' : 'ažurirana'));
         }
     }
 }

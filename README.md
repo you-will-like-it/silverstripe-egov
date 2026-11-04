@@ -52,6 +52,8 @@ Opcije:
 | Administrator e-Uprave / pravna služba | `EGOV_CONFIG` | Procedure, takse, tekstovi emailova i pravne formulacije |
 
 > Referentima **ne** dodjeljivati `CMS_ACCESS_LeftAndMain` (pristup svim sekcijama).
+> Referentima u *Security → Members* postaviti jezik **bosanski (bs_BA)**. Modul dopunjuje prevode jezgra
+> (GridField, obrasci, relativno vrijeme) u `lang/bs.yml`.
 
 ### 1.4 OCR alati
 

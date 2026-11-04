@@ -211,7 +211,7 @@ class DemoDataTask extends BuildTask
                 'payload' => ['ObjectType' => 'Residential', 'ObjectCharacter' => 'Permanent', 'ObjectDescription' => 'Stambeni objekat – dvojna kuća', 'GrossFloorArea' => 220.0, 'FloorCount' => 'P+1+Pk'],
                 'location' => ['Srebrenik', 'Ulica Javorova', '2011/3'],
                 'docs' => ['kopija-katastarskog-plana' => [], 'dokaz-o-uplati' => ['slip' => ['amount' => 50.0]], 'obrazlozenje-idejni-projekat' => []],
-                'steps' => [[21, 'submit'], [21, 'verify'], [19, 'start', 'amra'], [19, 'supplement', 'amra', ['dokaz-o-uplati' => 'WrongPayment']]],
+                'steps' => [[21, 'submit'], [21, 'verify'], [19, 'start', 'amra'], [19, 'supplement', 'amra', ['dokaz-o-uplati' => 'WrongPayment'], 'Incomplete', 120.0]],
             ],
             'spreman-za-preuzimanje' => [
                 'title' => 'Spreman za preuzimanje – demonstracija „Evidentiraj preuzimanje“',
@@ -455,11 +455,22 @@ class DemoDataTask extends BuildTask
                         $items[(int) $this->document($procedure, (string) $docKey)->ID] = (string) $reason;
                     }
                     $target = RequestStatus::from((string) ($step[4] ?? 'Incomplete'));
+                    // range / "prema tarifi" fees: the referent fixes the amount (step[5] or the lower bound)
+                    $fees = [];
+                    $asksForPayment = $target === RequestStatus::AwaitingPayment;
+                    foreach (array_keys($items) as $docId) {
+                        $asksForPayment = $asksForPayment || (bool) RequiredDocument::get()->byID($docId)?->IsPaymentProof;
+                    }
+                    foreach ($asksForPayment ? $request->getAssessableFees() : [] as $fee) {
+                        [$min, $max] = $fee->expectedRange($request->getFeeUnitCount());
+                        $fees[(int) $fee->ID] = isset($step[5]) ? (float) $step[5] : ($min > 0.0 ? $min : max(1.0, $max));
+                    }
                     $this->workflow->transition($request, $target, new TransitionContext(
                         actorType: TransitionContext::ACTOR_STAFF,
                         member: $member,
                         internalNote: 'Pregledani prilozi, tražena dopuna.',
                         supplementItems: $items,
+                        assessedFees: $fees,
                     ));
                     break;
 
@@ -687,7 +698,7 @@ class DemoDataTask extends BuildTask
             $email = sprintf('%s.%s@%s', $alias, $this->ascii($row['last']), self::EMAIL_DOMAIN);
             $member = Member::get()->filter('Email', $email)->first();
             if (!$member instanceof Member) {
-                $member = Member::create(['FirstName' => $row['first'], 'Surname' => $row['last'], 'Email' => $email]);
+                $member = Member::create(['FirstName' => $row['first'], 'Surname' => $row['last'], 'Email' => $email, 'Locale' => 'bs_BA']);
                 $member->write();
             }
             $result = $member->changePassword($password);

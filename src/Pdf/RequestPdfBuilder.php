@@ -85,13 +85,13 @@ class RequestPdfBuilder
 
         $html = (string) SSViewer::create('YouWillLikeIT\\EGov\\Pdf\\RequestDocument')->process($data);
 
-        $footer = trim(sprintf(
-            '%s · %s · Kod predmeta: %s%s',
+        // skip empty parts (e.g. no address in Settings) – no "Grad X · · Kod predmeta"
+        $footer = implode(' · ', array_filter([
             $tenant->fullName(),
-            $tenant->address(),
-            $request->TrackingCode,
-            $tenant->pdfFooter() !== '' ? ' · ' . $tenant->pdfFooter() : ''
-        ));
+            trim($tenant->address()),
+            'Kod predmeta: ' . $request->TrackingCode,
+            trim($tenant->pdfFooter()),
+        ], static fn (string $part): bool => $part !== ''));
 
         return Injector::inst()->get(PdfRendererInterface::class)->render($html, [
             'title' => $request->getSubjectLine(),

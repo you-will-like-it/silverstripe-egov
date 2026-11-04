@@ -20,9 +20,8 @@
 
                 <% if $IsIncomplete %>
                     <div class="egov-alert egov-alert--warning">
-                        <strong>Potrebna je dopuna<% if $Case.SupplementDueDate %> do $Case.SupplementDueFormatted<% end_if %>.</strong>
+                        <strong>Potrebna je dopuna<% if $Case.SupplementDueDate %> do $Case.SupplementDueFormatted<% else %>.<% end_if %></strong>
                         <div class="egov-pre">$Case.SupplementRequestText</div>
-                        <p>Dopunu dostavljate preko linka iz emaila ili lično na šalteru.</p>
                     </div>
                 <% end_if %>
                 <% if $IsAwaitingPayment %>

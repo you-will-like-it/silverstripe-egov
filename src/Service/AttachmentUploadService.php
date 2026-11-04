@@ -41,6 +41,20 @@ class AttachmentUploadService
     private static array $allowed_extensions = ['pdf', 'jpg', 'jpeg', 'png'];
 
     /**
+     * Allowed extensions, de-duplicated. Silverstripe merges list config from YAML with the
+     * class default, so the raw config value contains every entry twice.
+     *
+     * @return list<string>
+     */
+    public static function allowedExtensions(): array
+    {
+        return array_values(array_unique(array_map(
+            static fn ($e): string => strtolower(ltrim(trim((string) $e), '.')),
+            (array) static::config()->get('allowed_extensions')
+        )));
+    }
+
+    /**
      * @config
      */
     private static int $max_file_size_mb = 10;
@@ -122,7 +136,7 @@ class AttachmentUploadService
 
         $upload = Upload::create();
         $validator = class_exists(MimeUploadValidator::class) ? MimeUploadValidator::create() : $upload->getValidator();
-        $validator->setAllowedExtensions((array) static::config()->get('allowed_extensions'));
+        $validator->setAllowedExtensions(static::allowedExtensions());
         $validator->setAllowedMaxFileSize(['*' => (int) static::config()->get('max_file_size_mb') * 1024 * 1024]);
         $upload->setValidator($validator);
         $upload->setDefaultVisibility(AssetStore::VISIBILITY_PROTECTED);
@@ -163,7 +177,7 @@ class AttachmentUploadService
             throw new TransitionException('Vrsta dokumenta ne pripada ovoj proceduri.');
         }
         $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
-        if (!in_array($ext, (array) static::config()->get('allowed_extensions'), true)) {
+        if (!in_array($ext, static::allowedExtensions(), true)) {
             throw new TransitionException(sprintf('Tip datoteke .%s nije dozvoljen.', $ext));
         }
         if ($request->Attachments()->count() >= (int) static::config()->get('max_files_per_request')) {
@@ -244,15 +258,8 @@ class AttachmentUploadService
         if ($attachment->Kind !== ApplicationAttachment::KIND_CITIZEN) {
             throw new TransitionException('Ovaj prilog je dodala služba i ne može se ukloniti.');
         }
-        // Only attachments added in the current round may be removed by the citizen.
-        if ($request->getStatusEnum() !== RequestStatus::Draft) {
-            $roundStart = $request->StatusChanges()
-                ->filter('ToStatus', [RequestStatus::Incomplete->value, RequestStatus::AwaitingPayment->value])
-                ->sort('Created', 'DESC')
-                ->first();
-            if (!$roundStart || strtotime((string) $attachment->Created) < strtotime((string) $roundStart->Created)) {
-                throw new TransitionException('Prilozi koje je služba već zaprimila ne mogu se ukloniti.');
-            }
+        if (!$attachment->canBeRemovedByCitizen()) {
+            throw new TransitionException('Prilozi koje je služba već zaprimila ne mogu se ukloniti.');
         }
         $attachment->File()->deleteFile();
         $attachment->File()->delete();
@@ -264,7 +271,7 @@ class AttachmentUploadService
      */
     public function acceptAttribute(): array
     {
-        return array_map(static fn (string $e): string => '.' . $e, (array) static::config()->get('allowed_extensions'));
+        return array_map(static fn (string $e): string => '.' . $e, static::allowedExtensions());
     }
 
     private function folderPath(ApplicationRequest $request): string

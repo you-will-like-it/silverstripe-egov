@@ -65,16 +65,31 @@ function initIdFields(root = document) {
   });
 }
 
-// --- File input: show name/size and block oversized files client-side
+// --- File input: localised picker (native "Choose File" follows the browser language),
+//     show name/size and block oversized files client-side
 function initFileInputs(root = document) {
   root.querySelectorAll('.egov-upload-form input[type="file"]').forEach((input) => {
+    const picker = document.createElement('div');
+    picker.className = 'egov-file-picker';
+    const button = document.createElement('label');
+    button.className = 'egov-file-picker__button';
+    button.htmlFor = input.id;
+    button.textContent = 'Odaberi datoteku';
+    const name = document.createElement('span');
+    name.className = 'egov-file-picker__name';
+    name.textContent = 'Datoteka nije odabrana';
+    input.classList.add('egov-file-picker__input');
+    input.insertAdjacentElement('beforebegin', picker);
+    picker.append(input, button, name);
+
     const info = document.createElement('p');
     info.className = 'egov-live-hint';
     info.setAttribute('aria-live', 'polite');
-    input.insertAdjacentElement('afterend', info);
+    picker.insertAdjacentElement('afterend', info);
     const max = Number(document.querySelector('[data-egov-max-mb]')?.dataset.egovMaxMb || 10) * 1024 * 1024;
     input.addEventListener('change', () => {
       const file = input.files?.[0];
+      name.textContent = file ? file.name : 'Datoteka nije odabrana';
       if (!file) {
         info.textContent = '';
         return;

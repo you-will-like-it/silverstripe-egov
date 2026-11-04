@@ -409,6 +409,19 @@ class ApplicationRequest extends DataObject implements PermissionProvider
     // Status
     // =====================================================================
 
+    /**
+     * CMS breadcrumbs / audit: "SRB-ENYB9NKP – Lejla Hasanović".
+     */
+    public function getTitle(): string
+    {
+        $code = (string) $this->TrackingCode;
+        $name = trim((string) $this->ApplicantFullName);
+        if ($code === '') {
+            return $this->isInDB() ? '#' . $this->ID : 'Novi zahtjev';
+        }
+        return $name !== '' ? $code . ' – ' . $name : $code;
+    }
+
     public function getStatusEnum(): RequestStatus
     {
         return RequestStatus::tryFrom((string) $this->Status) ?? RequestStatus::Draft;
@@ -706,12 +719,13 @@ class ApplicationRequest extends DataObject implements PermissionProvider
      */
     public function getApplicableFees(): DataList
     {
-        $variants = [''];
+        // An empty Varchar is stored as NULL – fees without a variant must match both NULL and ''.
+        $variants = [null, ''];
         $variant = $this->getFeeVariantKey();
         if ($variant !== null && $variant !== '') {
             $variants[] = $variant;
         }
-        return FeeItem::get()->filter(['ProcedureID' => $this->ProcedureID, 'VariantKey' => $variants]);
+        return FeeItem::get()->filter(['ProcedureID' => $this->ProcedureID, 'VariantKey' => $variants])->sort('Sort');
     }
 
     /**

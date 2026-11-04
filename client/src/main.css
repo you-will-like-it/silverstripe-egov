@@ -69,7 +69,7 @@
   .egov-procedures { @apply grid gap-3 sm:grid-cols-2; }
   .egov-procedure { @apply rounded-lg border border-egov-line bg-white p-4 transition hover:border-egov-primary-600 hover:shadow; }
   .egov-procedure__link { @apply flex gap-3 no-underline; }
-  .egov-procedure__code { @apply shrink-0 rounded bg-egov-primary/10 px-2 py-0.5 font-mono text-xs text-egov-primary; }
+  .egov-procedure__code { @apply shrink-0 self-start mt-0.5 rounded bg-egov-primary/10 px-2 py-0.5 font-mono text-xs text-egov-primary; }
   .egov-procedure__title { @apply font-semibold text-egov-ink; }
   .egov-procedure__summary { @apply mt-2 text-sm text-egov-muted; }
 
@@ -128,6 +128,12 @@
     @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base shadow-sm focus:border-egov-primary-600 focus:ring-2 focus:ring-egov-primary-600/30;
   }
   .egov-form input[type="file"] { @apply block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-egov-primary file:px-3 file:py-2 file:text-white; }
+  .egov-file-picker { @apply relative flex flex-wrap items-center gap-3; }
+  /* visually hidden but focusable – keyboard users tab to the real input */
+  .egov-file-picker__input { @apply absolute h-px w-px overflow-hidden opacity-0; }
+  .egov-file-picker__button { @apply inline-flex cursor-pointer items-center rounded-md bg-egov-primary px-3 py-2 text-sm font-medium text-white hover:opacity-90; }
+  .egov-file-picker__input:focus-visible + .egov-file-picker__button { @apply outline-2 outline-offset-2 outline-egov-primary; }
+  .egov-file-picker__name { @apply text-sm text-gray-600; }
   .egov-form .optionset ul,
   .egov-form ul.optionset { @apply m-0 flex list-none flex-wrap gap-4 p-0; }
   .egov-form .optionset li { @apply flex items-center gap-2; }
